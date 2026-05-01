@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartRoute Intelligence</title>
+</head>
+<body>
+
+    <h1>SmartRoute Intelligence</h1>
+    <p>Java + PostgreSQL + Weighted Dijkstra Algorithm</p>
+
+    <h2>Add New Place</h2>
+
+    <input type="text" id="placeName" placeholder="Enter place name">
+    <button onclick="addPlace()">Add Place</button>
+
+    <p id="message"></p>
+
+    <hr>
+
+    <h2>Available Places</h2>
+    <button onclick="loadPlaces()">Load Places</button>
+
+    <!-- This must stay. Places will appear here. -->
+    <ul id="placesList"></ul>
+
+    <script>
+        async function addPlace() {
+            let placeName = document.getElementById("placeName").value;
+
+            let response = await fetch("/api/add-place?name=" + encodeURIComponent(placeName));
+
+            let data = await response.text();
+
+            document.getElementById("message").innerText = data;
+
+            document.getElementById("placeName").value = "";
+
+            loadPlaces();
+        }
+
+        async function loadPlaces() {
+            let response = await fetch("/api/places");
+
+            let places = await response.json();
+
+            let list = document.getElementById("placesList");
+
+            list.innerHTML = "";
+
+            places.forEach(function(place) {
+                list.innerHTML += "<li>" + place.id + " - " + place.name + "</li>";
+            });
+        }
+
+        loadPlaces();
+    </script>
+
+</body>
+</html>
