@@ -1,58 +1,426 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
     <title>SmartRoute Intelligence</title>
 </head>
 <body>
 
-    <h1>SmartRoute Intelligence</h1>
-    <p>Java + PostgreSQL + Weighted Dijkstra Algorithm</p>
+    <!-- Header Section -->
+    <div class="top-nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-brand">
+                <div class="nav-title">Smart<span>Route</span></div>
+            </a>
+            
+        </div>
+    </div>
 
-    <h2>Add New Place</h2>
+    <!-- Hero Section -->
+    <div class="page-hero">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <h1>Smart<em>Route</em> Intelligence</h1>
+            </div>
+            <div class="hero-stats">
+                <div class="h-stat">
+                    <div class="h-stat-num" id="placeCount">0</div>
+                    <div class="h-stat-label">Places</div>
+                </div>
+                <div class="h-stat">
+                    <div class="h-stat-num" id="routeCount">0</div>
+                    <div class="h-stat-label">Routes</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <input type="text" id="placeName" placeholder="Enter place name">
-    <button onclick="addPlace()">Add Place</button>
+    <!-- Main Content -->
+    <div class="page-wrap">
+        <div class="main-content">
 
-    <p id="message"></p>
+            <!-- Add Place Card -->
+            <div class="section-gap">
+                <div class="section-header">
+                    <h2> Add New Place</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="card">
+                    <div class="card-strip strip-blue"></div>
+                    <div class="card-head">
+                        <div class="card-head-text">
+                            <div class="card-title">Create a New Location</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="field">
+                            <input type="text" id="placeName" placeholder="Enter place name (e.g., Central Station, Park)">
+                        </div>
+                        <button class="btn btn-blue btn-full" onclick="addPlace()">Add Place</button>
+                        <div class="alert alert-success" id="message"></div>
+                    </div>
+                </div>
+            </div>
 
-    <hr>
+            <!-- Available Places Card -->
+            <div class="section-gap">
+                <div class="section-header">
+                    <h2> Available Places</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="card">
+                    <div class="card-strip strip-emerald"></div>
+                    <div class="card-head">
+                        <div class="card-head-text">
+                            <div class="card-title">Registered Locations</div>
+                        </div>
+                        <button class="btn btn-emerald btn-sm" onclick="loadPlaces()">Refresh</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Place Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="placesList">
+                                    <tr>
+                                        <td colspan="2" style="text-align: center; color: var(--ink-4);">Load places to display</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <h2>Available Places</h2>
-    <button onclick="loadPlaces()">Load Places</button>
+            <!-- Add Route Card -->
+            <div class="section-gap">
+                <div class="section-header">
+                    <h2>Add New Route</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="card">
+                    <div class="card-strip strip-violet"></div>
+                    <div class="card-head">
+                        <div class="card-head-text">
+                            <div class="card-title">Create Route Connection</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="field">
+                            <label>From Place</label>
+                            <select id="fromPlace"></select>
+                        </div>
+                        <div class="field">
+                            <label>To Place</label>
+                            <select id="toPlace"></select>
+                        </div>
+                        <div class="field-row">
+                            <div class="field">
+                                <label>Distance (meters)</label>
+                                <input type="number" id="distance" placeholder="e.g., 500" min="0">
+                            </div>
+                            <div class="field">
+                                <label>Crowd Level (1-10)</label>
+                                <input type="number" id="crowd" placeholder="1-10" min="1" max="10">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Safety Score (1-10)</label>
+                            <input type="number" id="safety" placeholder="1-10" min="1" max="10">
+                        </div>
+                        <button class="btn btn-violet btn-full" onclick="addRoute()">Add Route</button>
+                        <div class="alert alert-success" id="routeMessage"></div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- This must stay. Places will appear here. -->
-    <ul id="placesList"></ul>
+            <!-- Available Routes Card -->
+            <div class="section-gap">
+                <div class="section-header">
+                    <h2> Available Routes</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="card">
+                    <div class="card-strip strip-amber"></div>
+                    <div class="card-head">
+                        <div class="card-head-text">
+                            <div class="card-title">All Route Connections</div>
+                            <div class="card-subtitle">Overview of distance, crowd, and safety metrics</div>
+                        </div>
+                        <button class="btn btn-emerald btn-sm" onclick="loadRoutes()">Refresh</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Distance</th>
+                                        <th>Crowd Level</th>
+                                        <th>Safety Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="routesList">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: var(--ink-4);">Load routes to display</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Find Shortest Route Card -->
+            <div class="section-gap">
+                <div class="section-header">
+                    <h2> Find Optimal Route</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="card">
+                    <div class="card-strip strip-multi"></div>
+                    <div class="card-head">
+                        <div class="card-head-text">
+                            <div class="card-title">Shortest Path Calculator</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="field">
+                            <label>Start Place</label>
+                            <select id="startPlace"></select>
+                        </div>
+                        <div class="field">
+                            <label>Destination Place</label>
+                            <select id="endPlace"></select>
+                        </div>
+                        <button class="btn btn-blue btn-full" onclick="findShortestRoute()">Calculate Route</button>
+                        <div class="route-result" id="routeResult"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+
 
     <script>
+        let currentPlaces = [];
+        // Global variable to store current routes list
+        let currentRoutes = [];
+
+        // Show alert message
+        function showAlert(element, message, type = 'success') {
+            const alert = document.getElementById(element);
+            alert.textContent = message;
+            alert.classList.add('show');
+            alert.classList.remove('alert-success', 'alert-error');
+            alert.classList.add(`alert-${type}`);
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+
+        // Get visual indicator for crowd level
+        function getCrowdIndicator(crowd) {
+            if (crowd <= 3) return '<span class="badge badge-success">🟢 Low</span>';
+            if (crowd <= 6) return '<span class="badge badge-warning">🟡 Medium</span>';
+            return '<span class="badge badge-danger">🔴 High</span>';
+        }
+
+        // Get visual indicator for safety score
+        function getSafetyIndicator(safety) {
+            if (safety >= 8) return '<span class="badge badge-success">✓ Very Safe</span>';
+            if (safety >= 6) return '<span class="badge badge-info">~ Moderate</span>';
+            return '<span class="badge badge-danger">⚠ Caution</span>';
+        }
+
         async function addPlace() {
-            let placeName = document.getElementById("placeName").value;
+            let placeName = document.getElementById("placeName").value.trim();
+            if (!placeName) {
+                showAlert('message', 'Please enter a place name', 'error');
+                return;
+            }
 
-            let response = await fetch("/api/add-place?name=" + encodeURIComponent(placeName));
+            // Check if place already exists (case-insensitive)
+            let placeExists = currentPlaces.some(place => 
+                place.name.toLowerCase() === placeName.toLowerCase()
+            );
 
-            let data = await response.text();
+            if (placeExists) {
+                showAlert('message', '⚠ This place already exists! Please enter a different name.', 'error');
+                document.getElementById("placeName").value = "";
+                return;
+            }
 
-            document.getElementById("message").innerText = data;
-
-            document.getElementById("placeName").value = "";
-
-            loadPlaces();
+            try {
+                let response = await fetch("/api/add-place?name=" + encodeURIComponent(placeName));
+                let data = await response.text();
+                showAlert('message', data);
+                document.getElementById("placeName").value = "";
+                loadPlaces();
+            } catch (e) {
+                showAlert('message', 'Error adding place', 'error');
+            }
         }
 
         async function loadPlaces() {
-            let response = await fetch("/api/places");
+            try {
+                let response = await fetch("/api/places");
+                let places = await response.json();
+                currentPlaces = places; // Store in global variable
+                
+                let list = document.getElementById("placesList");
+                let fromSelect = document.getElementById("fromPlace");
+                let toSelect = document.getElementById("toPlace");
+                let startSelect = document.getElementById("startPlace");
+                let endSelect = document.getElementById("endPlace");
+                
+                list.innerHTML = "";
+                fromSelect.innerHTML="";
+                toSelect.innerHTML="";
+                startSelect.innerHTML = "";
+                endSelect.innerHTML = "";
 
-            let places = await response.json();
-
-            let list = document.getElementById("placesList");
-
-            list.innerHTML = "";
-
-            places.forEach(function(place) {
-                list.innerHTML += "<li>" + place.id + " - " + place.name + "</li>";
-            });
+                if (places.length === 0) {
+                    list.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--ink-4);">No places added yet</td></tr>';
+                } else {
+                    places.forEach(function(place) {
+                        list.innerHTML += "<tr><td><strong>#" + place.id + "</strong></td><td>" + place.name + "</td></tr>";
+                        fromSelect.innerHTML += "<option value='" + place.id + "'>" + place.name + "</option>";
+                        toSelect.innerHTML += "<option value='" + place.id + "'>" + place.name + "</option>";
+                        startSelect.innerHTML += "<option value='" + place.id + "'>" + place.name + "</option>";
+                        endSelect.innerHTML += "<option value='" + place.id + "'>" + place.name + "</option>";
+                    });
+                }
+                document.getElementById("placeCount").textContent = places.length;
+            } catch (e) {
+                console.error('Error loading places:', e);
+            }
         }
 
         loadPlaces();
+
+        async function addRoute() {
+            let fromId = document.getElementById("fromPlace").value;
+            let toId = document.getElementById("toPlace").value;
+            let distance = document.getElementById("distance").value;
+            let crowd = document.getElementById("crowd").value;
+            let safety = document.getElementById("safety").value;
+
+            if (!distance || !crowd || !safety) {
+                showAlert('routeMessage', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            let fromPlace = currentPlaces.find(p => p.id == fromId);
+            let toPlace = currentPlaces.find(p => p.id == toId);
+
+            if (!fromPlace || !toPlace) {
+                showAlert('routeMessage', 'Please select valid places', 'error');
+                return;
+            }
+
+            let routeExists = currentRoutes.some(route => 
+                (route.from === fromPlace.name && route.to === toPlace.name) ||
+                (route.from === toPlace.name && route.to === fromPlace.name)
+            );
+
+            if (routeExists) {
+                showAlert('routeMessage', '⚠ Route between these places already exists! (Routes work both ways)', 'error');
+                return;
+            }
+
+            try {
+                let url = "/api/add-route?fromId=" + fromId +
+                    "&toId=" + toId +
+                    "&distance=" + distance +
+                    "&crowd=" + crowd +
+                    "&safety=" + safety;
+                let response = await fetch(url);
+                let data = await response.text();
+                showAlert('routeMessage', data);
+
+                document.getElementById("distance").value = "";
+                document.getElementById("crowd").value = "";
+                document.getElementById("safety").value = "";
+                loadRoutes();
+            } catch (e) {
+                showAlert('routeMessage', 'Error adding route', 'error');
+            }
+        }
+
+        async function loadRoutes() {
+            try {
+                let response = await fetch("/api/routes");
+                let routes = await response.json();
+                currentRoutes = routes; // Store in global variable
+                let list = document.getElementById("routesList");
+
+                list.innerHTML = "";
+
+                if (routes.length === 0) {
+                    list.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--ink-4);">No routes added yet</td></tr>';
+                } else {
+                    routes.forEach(function(route) {
+                        list.innerHTML += "<tr>" +
+                            "<td><strong>" + route.from + " → " + route.to + "</strong></td>" +
+                            "<td><span class='distance-badge'>" + route.distance + " m</span></td>" +
+                            "<td>" + getCrowdIndicator(route.crowd) + " (" + route.crowd + "/10)</td>" +
+                            "<td>" + getSafetyIndicator(route.safety) + " (" + route.safety + "/10)</td>" +
+                            "</tr>";
+                    });
+                }
+                document.getElementById("routeCount").textContent = routes.length;
+            } catch (e) {
+                console.error('Error loading routes:', e);
+            }
+        }
+        async function findShortestRoute() {
+            let startId = document.getElementById("startPlace").value;
+            let endId = document.getElementById("endPlace").value;
+
+            if (!startId || !endId) {
+                showAlert('routeResult', 'Please select both start and destination places', 'error');
+                return;
+            }
+
+            try {
+                let response = await fetch("/api/find-route?startId=" + startId + "&endId=" + endId);
+                let data = await response.json();
+                let resultDiv = document.getElementById("routeResult");
+
+                if (data.error) {
+                    resultDiv.innerHTML = '<span style="color: var(--red);">⚠ ' + data.error + '</span>';
+                    resultDiv.classList.add('show', 'error');
+                } else {
+                    // Parse path string into array
+                    let pathArray = data.path.split(" → ");
+                    let stopsHTML = '';
+                    pathArray.forEach((stop, index) => {
+                        stopsHTML += '<div class="stop-chip"><span class="chip-num">' + (index + 1) + '</span>' + stop.trim() + '</div>';
+                        if (index < pathArray.length - 1) {
+                            stopsHTML += '<span class="stop-arrow">→</span>';
+                        }
+                    });
+
+                    resultDiv.innerHTML = 
+                        '<div class="route-result-title">✓ Optimal Route Found</div>' +
+                        '<div class="route-stops">' + stopsHTML + '</div>' +
+                        '<div class="route-metrics">' +
+                        '<div class="metric-box"><div class="metric-val">' + data.distance + '<sup>m</sup></div><div class="metric-label">Total Distance</div></div>' +
+                        '</div>';
+                    resultDiv.classList.add('show');
+                    resultDiv.classList.remove('error');
+                }
+            } catch (e) {
+                console.error('Error finding route:', e);
+                showAlert('routeResult', 'Error calculating route', 'error');
+            }
+        }
     </script>
 
 </body>
